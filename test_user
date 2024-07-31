@@ -1,0 +1,75 @@
+from unittest.mock import patch
+import app
+
+@mock.patch('app.SQL.requests.post', mock.Mock(return_value = MockResponse({"username": "test_user"}, 200)))      
+def test_getResponse():
+
+    # mock_res.json.return_value = {'username':"test_user"}
+    response = sql.getResponse("test_user")
+    # print("response:",response)
+    assert response["username"] == "test_user"
+
+@mock.patch('app.SQL.requests.post', mock.Mock(return_value = MockResponse({
+            "username": "test_user",
+            "login_email": "test_user@gmail.com",
+        }, 200)))
+
+@mock.patch('app.SQL',mock.Mock(return_value = True))
+
+def test_getName():
+
+    response = sql.getName("test_user", "test_user@amazon.com")
+    # data = json.loads(response.data)
+    # print("data",data)
+    assert response["username"] == "test_user"
+    assert response['login_email'] == 'test_user@gmail.com'
+
+@mock.patch('app.SQL.requests.post')
+def test_getAllName(mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.json.return_value = {"key": "value"}
+    mock_post.return_value = mock_response
+
+    response = sql.getAllName()
+    assert response == {'key': 'value'}
+    
+@mock.patch('app.SQL.requests.post', mock.Mock(return_value = MockResponse({
+            "username": "test_user",
+            "role": "tester"
+        }, 200)))
+
+@mock.patch('app.SQL',mock.Mock(return_value = True))
+
+def test_user():
+    response = sql.user("test_user", ["tester", "developer"],1)
+    assert response["username"] == "test_user"
+    assert response['role'] == 'tester'
+
+@mock.patch('app.SQL.requests.post')
+@mock.patch('app.SQL',mock.Mock(return_value = True))
+def test_addNumber(mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.json.return_value = {"key": "value"}
+    mock_post.return_value = mock_response
+
+    userId = 1
+    projectId = "testProjectId"
+    userName = "test_user"
+    projectName = "test_project"
+    response = sql.addNumber(userId, projectId, userName, projectName)
+    
+    assert response == {"key": "value"}
+
+@mock.patch('app.SQL.requests.post')
+@mock.patch('app.SQL.addActivity',mock.Mock(return_value = True))
+def test_addProjectNumber(mock_post):
+    mock_response = mock.MagicMock()
+    mock_response.json.return_value = {"id": 1}
+    mock_post.return_value = mock_response
+
+    projectId = "testProjectId"
+    projectType = "testProjectType"
+    userId = 1
+    response = sql.addProjectNumber(projectId, userId, projectType)
+
+    assert response == {"id": 1}
